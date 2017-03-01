@@ -39,6 +39,33 @@ function is_anagram(a, b)
 end
 
 
+# Given two strings, this function returns a boolean indicating
+# whether or not the first letters of all words in the phrases
+# are the same.
+function same_first_letters(x, y)
+    x_arr = split(x)
+    y_arr = split(y)
+    n_words = length(x_arr)
+    res = true
+    if n_words ≠ length(y_arr)
+        error("Attempted to compare phrases with differing number of words")
+    else
+        for i = 1:n_words
+            if first(x_arr[i]) ≠ first(y_arr[i])
+                res = false
+                break
+            end
+        end
+    end
+    return res
+end
+
+## testing
+same_first_letters("this is a phrase", "this is also phrase")
+same_first_letters("this is a phrase", "this also phrase")
+
+
+
 # This function uses moving window to compare words
 # combination from two strings (strings are arrays of words).
 function found_match(x_arr, y_arr, thresh)
@@ -53,6 +80,11 @@ function found_match(x_arr, y_arr, thresh)
 
             for j = 1:(len_x - windowsize + 1)
                 x_str = join(x_arr[j:(j + windowsize - 1)], " ")
+
+                if !same_first_letters(x_str, y_str)
+                    continue
+                end
+
                 println("Comparing: \'$y_str\' and \'$x_str\'")
                 similarity = compare(DamerauLevenshtein(), y_str, x_str)
 
