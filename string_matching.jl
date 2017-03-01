@@ -70,39 +70,34 @@ same_first_letters("this is a phrase", "this also phrase")
 # This function uses moving window to compare words
 # combination from two strings (strings are arrays of words).
 function found_match(x_arr, y_arr, thresh)
-    len_diff = length(x_arr) - length(y_arr)      # by convention, x_arr will be longer
+    # By convention, y_arr will be longer
     len_y = length(y_arr)
     len_x = length(x_arr)
+    x_str = join(x_arr, " ")
+    windowsize = len_x
 
-    for windowsize = 2:len_y
-        for i = 1:(len_y - windowsize + 1)
-            y_str = join(y_arr[i:(i + windowsize - 1)], " ")
-            n_char = length(y_str)
+    for i = 1:(len_y - windowsize + 1)
+        y_str = join(y_arr[i:(i + windowsize - 1)], " ")
+        n_char = length(y_str)
 
-            for j = 1:(len_x - windowsize + 1)
-                x_str = join(x_arr[j:(j + windowsize - 1)], " ")
+        if !same_first_letters(x_str, y_str)
+            continue
+        end
+        println("Comparing: \'$y_str\' and \'$x_str\'")
+        similarity = compare(DamerauLevenshtein(), y_str, x_str)
 
-                if !same_first_letters(x_str, y_str)
-                    continue
-                end
-
-                println("Comparing: \'$y_str\' and \'$x_str\'")
-                similarity = compare(DamerauLevenshtein(), y_str, x_str)
-
-                if n_char ≤ 8 && similarity ≥ thresh
-                    println("Matched \'$y_str\' and \'$x_str\'")
-                    return true
-                elseif n_char ≤ 12 && similarity ≥ thresh - 0.05
-                    println("Matched \'$y_str\' and \'$x_str\' with similarity $similarity")
-                    return true
-                elseif n_char ≤ 18 && similarity ≥ thresh - 0.1
-                    println("Matched \'$y_str\' and \'$x_str\' with similarity $similarity")
-                    return true
-                elseif similarity ≥ thresh - 0.15
-                    println("Matched \'$y_str\' and \'$x_str\' with similarity $similarity")
-                    return true
-                end
-            end
+        if n_char ≤ 8 && similarity ≥ thresh
+            println("Matched \'$y_str\' and \'$x_str\'")
+            return true
+        elseif n_char ≤ 12 && similarity ≥ thresh - 0.05
+            println("Matched \'$y_str\' and \'$x_str\' with similarity $similarity")
+            return true
+        elseif n_char ≤ 18 && similarity ≥ thresh - 0.1
+            println("Matched \'$y_str\' and \'$x_str\' with similarity $similarity")
+            return true
+        elseif similarity ≥ thresh - 0.15
+            println("Matched \'$y_str\' and \'$x_str\' with similarity $similarity")
+            return true
         end
     end
     return false
@@ -119,7 +114,7 @@ function is_string_match(x, y, thresh, stopwords)
     len_x = length(x_arr)
     len_y = length(y_arr)
 
-    if len_x > len_y
+    if len_x < len_y
         res = found_match(x_arr, y_arr, thresh)
     else
         # switching position of x and y
