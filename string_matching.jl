@@ -48,7 +48,8 @@ function same_first_letters(x, y)
     n_words = length(x_arr)
     res = true
     if n_words ≠ length(y_arr)
-        error("Attempted to compare phrases with differing number of words")
+        warn("Attempted to compare phrases with differing number of words")
+        res = false
     else
         for i = 1:n_words
             if first(x_arr[i]) ≠ first(y_arr[i])
