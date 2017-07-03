@@ -76,11 +76,11 @@ features_tst = features[test, :]
 
 # Run n-fold cross validation for forests using
 # `m_try` random features, 100 trees, and 5 folds.
-m_try = floor(Int, sqrt(size(features_trn, 2)))
-nfoldCV_forest(labels_trn, features_trn, m_try, 500, 5, 0.7)
+m_try = 100
+nfoldCV_forest(labels_trn, features_trn, m_try, 50, 5, 0.7)
 
 # Build forest with meta-parameters we like from CV above
-fm1 = build_forest(labels_trn, features_trn, m_try, 500, 10, 0.7)
+fm1 = build_forest(labels_trn, features_trn, m_try, 50, 15, 0.7)
 
 # Get predicted category
 yhat1 = apply_forest(fm1, features_tst)
