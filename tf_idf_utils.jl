@@ -65,12 +65,20 @@ function clean_all_strings(x::Array{T, 1}, stopwords::Array{String, 1}) where {T
 end
 
 
+"""
+    document_frequency(x)
+Give a vector of strings, `x`, this function return a dictionary where the
+keys are the unique words in the entire vector `x` and the values are integers
+representing the number of documents that contained the given word.
+"""
 function document_frequency(x::NullableArray{String, 1})
     n = length(x)
     res = Dict{String, Int}()
     for i = 1:n
-        xi_dict = countmap(split(x[i].value))
-        merge!(+, res, xi_dict)
+        unq_words = unique(split(x[i].value))
+        for word in unq_words
+            res[word] = get(res, word, 0) + 1
+        end
     end
     res
 end
@@ -80,13 +88,24 @@ function document_frequency(x::Array{String, 1})
     n = length(x)
     res = Dict{String, Int}()
     for i = 1:n
-        xi_dict = countmap(split(x[i]))
-        merge!(+, res, xi_dict)
+        unq_words = unique(split(x[i]))
+        for word in unq_words
+            res[word] = get(res, word, 0) + 1
+        end
     end
     res
 end
 
 
+"""
+    tf_idf_datatable(x, stopwords)
+Given a vector (of strings, typically), `x`, this function returns a
+DataTable where columns contain the TF/IDF values for the words appearing
+in the original vector `x`. In particular, the rows in the output DataTable
+correspond to the indices of the input vector `x`. And the columns correspond
+to a sorted list of unique terms in the the vocabulary of the input vector (after
+the stop words have been removed).
+"""
 function tf_idf_datatable(x::AbstractArray, stopwords::Array{String,1})
      x_cln = clean_all_strings(x, stopwords)
      doc_freq = document_frequency(x_cln)
@@ -103,10 +122,10 @@ function tf_idf_datatable(x::AbstractArray, stopwords::Array{String,1})
 
      mat = zeros(n, p)
      for i = 1:n
-         word_arr = split(x_cln[i])
-         for word in word_arr
+         word_cnts = countmap(split(x_cln[i]))
+         for (word, cnt) in word_cnts
              j = word_idx[word]
-             mat[i, j] = doc_freq[word]
+             mat[i, j] = cnt * log(n / doc_freq[word])
          end
      end
      res = convert(DataTable, mat)
