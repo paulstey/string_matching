@@ -22,11 +22,16 @@ const STOPWORDS = [
     "with"]
 
 
-# Testing above functions
+###
+# Data Cleaning and Prepartion
+###
+
+# Recode a couple of minor errors
+recode!(dt, :Category, Dict("Aortic Disease" => "aortic", "hypotension" => "acute"), String)
+
+# Testing our TF/IDF functions
 a = ["this is a string of words", "this is a sentence!", "this is it", "what about this?"]
 tf_idf_datatable(a, STOPWORDS)
-
-
 
 
 
@@ -40,7 +45,11 @@ dt_tf_idf = tf_idf_datatable(dt[:Indication], STOPWORDS)
 
 
 
-## Fitting Random Forest
+
+###
+# Fitting Random Forest
+###
+
 # Cast data to numeric arrays
 labels = convert(Array{String,1}, dt[:Category])
 features = convert(Array, dt_tf_idf)
@@ -65,21 +74,19 @@ features_trn = features[train, :]
 features_tst = features[test, :]
 
 
-# Run n-fold cross validation for forests using `m_try`
-# random features, 100 trees, and 5 folds.
-m_try = 100#floor(Int, sqrt(size(features_trn, 2)))
-nfoldCV_forest(labels_trn, features_trn, m_try, 1000, 5, 0.7)
+# Run n-fold cross validation for forests using
+# `m_try` random features, 100 trees, and 5 folds.
+m_try = floor(Int, sqrt(size(features_trn, 2)))
+nfoldCV_forest(labels_trn, features_trn, m_try, 500, 5, 0.7)
 
 # Build forest with meta-parameters we like from CV above
-fm1 = build_forest(labels_trn, features_trn, m_try, 1000, 10, 0.7)
+fm1 = build_forest(labels_trn, features_trn, m_try, 500, 10, 0.7)
 
+# Get predicted category
 yhat1 = apply_forest(fm1, features_tst)
+
+
+# Get measures of model performance
 fm1_acc = mean(yhat1 .== labels_tst)
-
-cm = confusion_matrix(labels_tst, yhat1)
-cm.kappa
-
-## Get measure of model performance
-# labmap = labelmap(convert(Array{String,1}, dt[:Category]))
-# yhat1_int = labelencode(labmap, convert(Array{String,1}, yhat1))
-# labels_int = labelencode(labmap, labels_tst)
+cm1 = confusion_matrix(labels_tst, yhat1)
+cm1.kappa
