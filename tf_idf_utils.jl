@@ -13,7 +13,11 @@ function recode!(dat::DataTable, col::Symbol, recode_lookup::Dict, typ::DataType
     n = size(dat, 1)
     dat[col] = NullableArray{typ, 1}(n)
     for i = 1:n
-        dat[i, col] = recode_lookup[tmp[i]]
+        if tmp[i] ∈ keys(recode_lookup)
+            dat[i, col] = recode_lookup[tmp[i]]
+        else
+            dat[i, col] = tmp[i]
+        end
     end
 end
 
