@@ -65,6 +65,12 @@ function train_test_split(dat, pct_train; seed = rand(Int, 1))
     return (train_indcs, test_indcs)
 end
 
+
+
+
+
+
+
 train, test = train_test_split(dt, 0.80, seed = 137)
 
 labels_trn = labels[train]
@@ -75,12 +81,16 @@ features_tst = features[test, :]
 
 
 # Run n-fold cross validation for forests using
-# `m_try` random features, 100 trees, and 5 folds.
-m_try = 100
-nfoldCV_forest(labels_trn, features_trn, m_try, 50, 5, 0.7)
+# `mtry` random features, 100 trees, and 5 folds.
+mtry = 250
+ntrees = 1000
+kfolds = 5
+
+nfoldCV_forest(labels_trn, features_trn, mtry, ntrees, kfolds, 0.7)
 
 # Build forest with meta-parameters we like from CV above
-fm1 = build_forest(labels_trn, features_trn, m_try, 50, 15, 0.7)
+maxlabels = 5
+fm1 = build_forest(labels_trn, features_trn, mtry, ntrees, maxlabels, 0.7)
 
 # Get predicted category
 yhat1 = apply_forest(fm1, features_tst)
