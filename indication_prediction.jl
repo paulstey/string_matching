@@ -95,6 +95,9 @@ fm1 = build_forest(labels_trn, features_trn, mtry, ntrees, maxlabels, 0.7)
 # Get predicted category
 yhat1 = apply_forest(fm1, features_tst)
 
+# Write predictions to file
+writecsv("/Users/pstey/Desktop/preds_labels.csv", hcat(yhat1, labels_tst))
+
 
 # Get measures of model performance
 fm1_acc = mean(yhat1 .== labels_tst)
